@@ -1,0 +1,13 @@
+Description	Type	Residue	Monoisotopic Mass Shift (Da)	Average Mass Shift (Da)	Default	Chemical Formula
+carbamidomethylation of C	amino acid residue	C	57.02146373	57.05132	fixed	CH3NO
+oxidation of M	amino acid residue	M	15.99491463	15.9994	variable	O
+acetylation of protein N-terminus	protein N-terminus	n/a	42.01056469	42.03668	none	C2H2O
+phosphorylation of S	amino acid residue	S	79.96633092	79.979902	none	HPO3
+phosphorylation of T	amino acid residue	T	79.96633092	79.979902	none	HPO3
+phosphorylation of Y	amino acid residue	Y	79.96633092	79.979902	none	HPO3
+deamidation of N	amino acid residue	N	0.9840155927	0.98476	none	H-1N-1O
+deamidation of Q	amino acid residue	Q	0.9840155927	0.98476	none	H-1N-1O
+cysteinylation of C	amino acid residue	C	119.0041	119.1442	none	C3H7NO2S
+acetylation of K	amino acid residue	K	42.01056	42.0373	none	C2H2O
+propionylation of K	amino acid residue	K	56.0262147478	56.02	none	C3H5O
+Pionylation of peptide N-terminus	peptide N-terminus	n/a	3.1478073505	3.1415926535	none	Pi

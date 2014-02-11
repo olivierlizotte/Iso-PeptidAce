@@ -1,0 +1,35 @@
+Description	Type	Residue	Monoisotopic Mass Shift (Da)	Probability	Default	Chemical Formula
+water loss of S	amino acid residue	S	-18.010565	1	auto	H20
+water loss of T	amino acid residue	T	-18.010565	1	auto	H20
+water loss of E	amino acid residue	E	-18.010565	1	auto	H20
+hydration on H	amino acid residue	H	18.010565	1	auto	H20
+hydration on R	amino acid residue	R	18.010565	1	auto	H20
+amonia loss of Q	amino acid residue	Q	-17.026549	1	auto	NH3
+amonia loss of K	amino acid residue	K	-17.026549	1	auto	NH3
+amonia loss of R	amino acid residue	R	-17.026549	1	auto	NH3
+amonia loss of N	amino acid residue	N	-17.026549	1	auto	NH3
+Imonium loss of G	fragment	G	30.03438	1	auto	n/a
+Imonium loss of A	fragment	A	44.05003	1	auto	n/a
+Imonium loss of S	fragment	S	60.04494	1	auto	n/a
+Imonium loss of P	fragment	P	70.06568	1	auto	n/a
+Imonium loss of V	fragment	V	72.08133	1	auto	n/a
+Imonium loss of T	fragment	T	74.06059	1	auto	n/a
+Imonium loss of C	fragment	C	76.02210	0.4	auto	n/a
+Imonium loss of C carbamidomethylated	fragment	C	133.0436	0.2	auto	n/a
+Imonium loss of C carboxymethylated	fragment	C	134.0276	0.2	auto	n/a
+Imonium loss of C acrylamide adduct	fragment	C	147.0772	0.2	auto	n/a
+Imonium loss of I	fragment	I	86.09698	1	auto	n/a
+Imonium loss of L	fragment	L	86.09698	1	auto	n/a
+Imonium loss of N	fragment	N	87.05584	1	auto	n/a
+Imonium loss of D	fragment	D	88.03986	1	auto	n/a
+Imonium loss of Q	fragment	Q	101.0715	1	auto	n/a
+Imonium loss of K	fragment	K	101.1079	0.5	auto	n/a
+Imonium and amonia loss of K	fragment	K	84.08136	0.5	auto	n/a
+Imonium loss of E	fragment	E	102.0555	1	auto	n/a
+Imonium loss of M	fragment	M	104.0534	0.5	auto	n/a
+Imonium loss of M oxidized	fragment	M	120.0483	0.5	auto	n/a
+Imonium loss of H	fragment	H	110.0718	1	auto	n/a
+Imonium loss of F	fragment	F	120.0813	1	auto	n/a
+Imonium loss of R	fragment	R	129.1140	1	auto	n/a
+Imonium loss of Y	fragment	Y	136.0762	1	auto	n/a
+Imonium loss of W	fragment	W	159.0922	1	auto	n/a

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Viewbox xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" Stretch="Uniform">
+    <Canvas Name="svg2985" Width="1052" Height="744">
+        <Canvas.Resources/>
+        <Canvas Name="layer1">
+            <TextBlock xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Canvas.Left="55" Canvas.Top="14" Name="text2992" Foreground="White">
+                    <Span FontSize="40" FontFamily="Matura MT Script Capitals" FontStyle="normal">Iso-</Span>
+            </TextBlock>
+            <TextBlock xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Canvas.Left="150" Canvas.Top="14" Name="text2994" Foreground="White">
+                    <Span FontSize="40" FontFamily="Magneto" FontStyle="normal">Peptid</Span>
+            </TextBlock>
+            <TextBlock xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Canvas.Left="265" Canvas.Top="24" Name="text2998" Foreground="White">
+                    <Span FontSize="40" FontFamily="Magneto" FontStyle="normal">Ace</Span>
+            </TextBlock>
+        </Canvas>
+    </Canvas>
+</Viewbox>
