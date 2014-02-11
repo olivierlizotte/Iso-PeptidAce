@@ -5,8 +5,8 @@ Iso-PeptidAce is a stand alone software for the in silico separation of co-eluti
 
 The user interface for Iso-PeptidAce is built using .Net 4. It is compatible with 64 bit versions of Windows 7 (and up). To work with Thermo instruments, MsFileReader (64 bit version) must be installed first. Iso-PeptidAce uses ProteoWizard (included) to process MS files.
 
-http://olivierlizotte.github.io/Iso-PeptidAce/
+[GitHub Page](http://olivierlizotte.github.io/Iso-PeptidAce/)
 
-http://iric.ca
+[IRIC](http://iric.ca)
 
-http://proteomics.iric.ca/?lang=en#/Equipe
+[Proteomic Platform Staff](http://proteomics.iric.ca/?lang=en#/Equipe)
