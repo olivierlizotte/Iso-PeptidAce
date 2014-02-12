@@ -67,14 +67,6 @@ namespace PeptidAce.Iso.Methods
 
             dbOptions.addFragmentLoss = false;
             dbOptions.addFragmentMods = false;//Gives very bad results... might by off
-            dbOptions.fragments = new Fragments();
-
-            dbOptions.fragments.Add(new FragmentA());
-            dbOptions.fragments.Add(new FragmentB());
-            dbOptions.fragments.Add(new FragmentC());
-            dbOptions.fragments.Add(new FragmentX());
-            dbOptions.fragments.Add(new FragmentY());
-            dbOptions.fragments.Add(new FragmentZ());
             
             dbOptions.SaveMS1Peaks = true;
             dbOptions.SaveMSMSPeaks = true;
