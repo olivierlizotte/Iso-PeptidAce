@@ -14,7 +14,7 @@ namespace PeptidAce.Iso.Structures
     public class PrecursorIon
     {
         //Elution curve based on intensity count
-        public ElutionCurve eCurve;
+        public ElutionCurve eCurveIntensityCount;
         //Elution curve computed from intensities per millisecond
         public ElutionCurve eCurveIntensityPerMS;
         //Theoretical mz for this precursor
@@ -44,7 +44,7 @@ namespace PeptidAce.Iso.Structures
                 dicOfTimeInMsVsIntensityPerMs.Add(time, query.spectrum.PrecursorIntensityPerMilliSecond);
                 dicOfTimeInMsVsIntensityCount.Add(time, query.spectrum.PrecursorIntensity);
             }
-            this.eCurve = ElutionCurve.Create(dicOfTimeInMsVsIntensityCount);//dicOfTimeInMsVsIntensityPerMs);
+            this.eCurveIntensityCount = ElutionCurve.Create(dicOfTimeInMsVsIntensityCount);//dicOfTimeInMsVsIntensityPerMs);
             this.eCurveIntensityPerMS = ElutionCurve.Create(dicOfTimeInMsVsIntensityPerMs);
             this.Sample = sample;
         }

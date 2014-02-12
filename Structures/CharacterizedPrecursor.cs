@@ -185,20 +185,20 @@ namespace PeptidAce.Iso.Structures
         {
             keep = false;
             double PrecursorLossNormalizeFactor = 1.0;
-            average = eCurve.Area;
+            average = eCurveIntensityCount.Area;
 
             //average = area * Norm => Norm = average/area
-            if (eCurve.Area > 0)
+            if (eCurveIntensityCount.Area > 0)
             {
                 //Normalize matches based on precursor intensity differences
                 double cumulArea = 0.0;
                 int nbNonZero = 0;
                 foreach (CharacterizedPrecursor precursor in allCorrespondingPrec)
                 {
-                    if (precursor.eCurve.Area > 0)
+                    if (precursor.eCurveIntensityCount.Area > 0)
                     {
                         nbNonZero++;
-                        cumulArea += precursor.eCurve.Area;
+                        cumulArea += precursor.eCurveIntensityCount.Area;
                     }
                 }
                 if (nbNonZero > 0)
@@ -206,7 +206,7 @@ namespace PeptidAce.Iso.Structures
                     keep = true;
                     average = cumulArea / (double)nbNonZero;
                     //PrecursorLossNormalizeFactor = Math.Log(average, 2) / Math.Log(this.eCurve.Area, 2);
-                    PrecursorLossNormalizeFactor = Math.Log(average, 10) / Math.Log(this.eCurve.Area, 10);
+                    PrecursorLossNormalizeFactor = Math.Log(average, 10) / Math.Log(this.eCurveIntensityCount.Area, 10);
                     //PrecursorLossNormalizeFactor = average / this.eCurve.Area;
                     //PrecursorLossNormalizeFactor = 1.0;
                 }
@@ -399,12 +399,12 @@ namespace PeptidAce.Iso.Structures
         private bool NormalizeFragments(IEnumerable<CharacterizedPrecursor> allCorrespondingPrec, int nbProductsToKeep, DBOptions dbOptions, bool normalizePrecursor, bool normalizeFragments)//, double precision)
         {
             bool keepNbProds = true;
-            if (eCurve.Area > 0)
+            if (eCurveIntensityCount.Area > 0)
             {
                 if (normalizeFragments)
                 {
                     List<double> keys = new List<double>(NormalizedFragments[nbProductsToKeep].Keys);
-                    double area = this.eCurve.Area;
+                    double area = this.eCurveIntensityCount.Area;
 
                     FragmentNormalizor.Add(nbProductsToKeep, GetNormalizingCurve(dbOptions, nbProductsToKeep));
                 }

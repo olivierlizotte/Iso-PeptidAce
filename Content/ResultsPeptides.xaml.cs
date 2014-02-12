@@ -77,7 +77,7 @@ namespace PeptidAce.ModernUI.Content
                     CharacterizedPrecursor cPrec = PepIso.solver.characterizedPeptides[key][sample];
 
                     List<string[]> scanTimes = new List<string[]>();
-                    List<double> timeArray = Utilities.ElutionCurve.GetTimePoints(64, true, cPrec.eCurve.interpolatedTime, cPrec.eCurve.interpolatedIntensityCount);
+                    List<double> timeArray = Utilities.ElutionCurve.GetTimePoints(64, true, cPrec.eCurveIntensityCount.interpolatedTime, cPrec.eCurveIntensityCount.interpolatedIntensityCount);
                     List<string> time = new List<string>(timeArray.Count);
                     foreach (double timeP in timeArray)
                         time.Add(((float)(timeP / (1000.0 * 60.0))).ToString());
@@ -86,7 +86,7 @@ namespace PeptidAce.ModernUI.Content
                     List<double[]> intensities = new List<double[]>();
                     double[] arrayInt = new double[timeArray.Count];
                     for (int i = 0; i < arrayInt.Length; i++)
-                        arrayInt[i] = cPrec.eCurve.InterpolateIntensity(timeArray[i]);
+                        arrayInt[i] = cPrec.eCurveIntensityCount.InterpolateIntensity(timeArray[i]);
                     intensities.Add(arrayInt);
                     //intensities.Add(cPrec.eCurve.intensityCount.ToArray());
                     

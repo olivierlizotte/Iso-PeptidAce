@@ -110,12 +110,12 @@ namespace PeptidAce.Iso.Methods
                 {
                     titleCombined += "," + charPrec.Peptide.Sequence + " Charge " + charPrec.Charge;
 
-                    if (charPrec.eCurve.Coefficients != null && charPrec.eCurve.Coefficients.Length == 3)
-                        curveStr += "," + charPrec.eCurve.Coefficients[0] + "x^2 + " + charPrec.eCurve.Coefficients[1] + "x" + charPrec.eCurve.Coefficients[2];
+                    if (charPrec.eCurveIntensityCount.Coefficients != null && charPrec.eCurveIntensityCount.Coefficients.Length == 3)
+                        curveStr += "," + charPrec.eCurveIntensityCount.Coefficients[0] + "x^2 + " + charPrec.eCurveIntensityCount.Coefficients[1] + "x" + charPrec.eCurveIntensityCount.Coefficients[2];
                     else
                         curveStr += ",NA";
 
-                    spikedIntensityStr += "," + charPrec.eCurve.Area;
+                    spikedIntensityStr += "," + charPrec.eCurveIntensityCount.Area;
                 }
             writerCumul.AddLine(titleCombined);
             writerCumul.AddLine(curveStr);
@@ -170,16 +170,16 @@ namespace PeptidAce.Iso.Methods
                 titleIndividual += "," + charPep.Sequence;
             writerRatio.AddLine(titleIndividual);
 
-            string line = "Total," + mixedPrecursor.eCurve.Area;
+            string line = "Total," + mixedPrecursor.eCurveIntensityCount.Area;
             foreach (Peptide charPep in ratios.Keys)
                 line += "," + ratios[charPep].eCurvePerMs.Area;
             writerRatio.AddLine(line);
 
-            for (int i = 0; i < mixedPrecursor.eCurve.intensityCount.Count; i++)
+            for (int i = 0; i < mixedPrecursor.eCurveIntensityCount.intensityCount.Count; i++)
             {
-                line = mixedPrecursor.eCurve.time[i] / (1000.0 * 60.0) + "," + mixedPrecursor.eCurve.intensityCount[i];
+                line = mixedPrecursor.eCurveIntensityCount.time[i] / (1000.0 * 60.0) + "," + mixedPrecursor.eCurveIntensityCount.intensityCount[i];
                 foreach (Peptide charPep in ratios.Keys)
-                    line += "," + ratios[charPep].eCurvePerMs.InterpolateIntensity(mixedPrecursor.eCurve.time[i]);
+                    line += "," + ratios[charPep].eCurvePerMs.InterpolateIntensity(mixedPrecursor.eCurveIntensityCount.time[i]);
                 writerRatio.AddLine(line);
             }
             writerRatio.WriteToFile();
@@ -246,7 +246,7 @@ namespace PeptidAce.Iso.Methods
                                     curves.Add(cPep.Peptide, new MaxFlowElutionCurve(nbProductsToKeep));
 
                                 //curves[cPep].AddPoint(timeInMilliSeconds, finalRatios[cPep].Ratio * query.spectrum.PrecursorIntensityPerMilliSecond);
-                                curves[cPep.Peptide].eCurveCount.AddPoint(timeInMilliSeconds, finalRatios[cPep].Ratio * mixedPrecursor.eCurve.InterpolateIntensity(timeInMilliSeconds));
+                                curves[cPep.Peptide].eCurveCount.AddPoint(timeInMilliSeconds, finalRatios[cPep].Ratio * mixedPrecursor.eCurveIntensityCount.InterpolateIntensity(timeInMilliSeconds));
                                 curves[cPep.Peptide].eCurvePerMs.AddPoint(timeInMilliSeconds, finalRatios[cPep].Ratio * mixedPrecursor.eCurveIntensityPerMS.InterpolateIntensity(timeInMilliSeconds));
                             }
                         }

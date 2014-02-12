@@ -99,7 +99,7 @@ namespace PeptidAce.ModernUI.Content
                         names.Add(peptide.Peptide.Sequence + "  [" + Utilities.vsCSV.GetFileName_NoExtension(peptide.Sample.sSDF) + "]");
                     }//*/
 
-                    List<double> timePoints = Utilities.ElutionCurve.GetTimePoints(64, true, mixed.eCurve.interpolatedTime, mixed.eCurve.interpolatedIntensityCount);
+                    List<double> timePoints = Utilities.ElutionCurve.GetTimePoints(64, true, mixed.eCurveIntensityCount.interpolatedTime, mixed.eCurveIntensityCount.interpolatedIntensityCount);
                     string[] timeStr = new string[timePoints.Count];
 
                     for (int i = 0; i < timeStr.Length; i++)
