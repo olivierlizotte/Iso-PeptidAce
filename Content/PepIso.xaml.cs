@@ -24,7 +24,7 @@ namespace PeptidAce.ModernUI.Content
     {
         public static PositionnalIsomerSolver solver;
         public static double precursorMassTolPPm = 8;
-        public static double productMassTolPPm   = 20;
+        public static double productMassTolPPm   = 0.05;
         public static int nbMinFragments = 5;
         public static int nbMaxFragments = 8;
         public string[] peptideFiles;
@@ -158,7 +158,7 @@ namespace PeptidAce.ModernUI.Content
                     {
                         PositionnalIsomerSolver newSolver = new PositionnalIsomerSolver();
                         newSolver.precTolPpm = precursorMassTolPPm;
-                        newSolver.prodTolPpm = productMassTolPPm;
+                        newSolver.prodTolDa = productMassTolPPm;
                         newSolver.nbMinFragments = nbMinFragments;
                         newSolver.nbMaxFragments = nbMaxFragments;
                         newSolver.Solve(peptideFiles, mixedFiles, fastaFile, Utilities.vsCSV.GetFolder(mixedFiles[0]), conSol);

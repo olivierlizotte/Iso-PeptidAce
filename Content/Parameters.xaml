@@ -24,8 +24,8 @@
                     <TextBlock Text="Precursor Mass Tolerance (in ppm):" VerticalAlignment="Center" Margin="0,0,16,4" />
                     <TextBox Name="PrecMassTol" Grid.Column="1" VerticalAlignment="Center" Margin="0,0,0,4" TextChanged="TextBox_TextChanged" >8</TextBox>
 
-                    <TextBlock Grid.Row="1" Text="Fragment Mass Tolerance (in ppm):" VerticalAlignment="Center" Margin="0,0,16,4" />
-                    <TextBox Name="ProdMassTol" Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Margin="0,0,0,4" TextChanged="TextBox_TextChanged_1" >20</TextBox>
+                    <TextBlock Grid.Row="1" Text="Fragment Mass Tolerance (in Dalton):" VerticalAlignment="Center" Margin="0,0,16,4" />
+                    <TextBox Name="ProdMassTol" Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Margin="0,0,0,4" TextChanged="TextBox_TextChanged_1" >0.05</TextBox>
                     
                     <TextBlock Grid.Row="2" Text="Minimum number of fragment to use:" VerticalAlignment="Center" Margin="0,0,16,4" />
                     <TextBox Name="minNbFragment" Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" Margin="0,0,0,4" TextChanged="TextBox_TextChanged_2" >5</TextBox>

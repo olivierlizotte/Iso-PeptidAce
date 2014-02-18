@@ -26,7 +26,7 @@ namespace PeptidAce.Iso.Methods
         public int nbMaxFragments = 5;
         //Tolerance windows
         public double precTolPpm = 8;
-        public double prodTolPpm = 20;
+        public double prodTolDa = 0.05;
 
         public long precision     = 1000;
         private DBOptions dbOptions;
@@ -55,13 +55,13 @@ namespace PeptidAce.Iso.Methods
         {
             DBOptions dbOptions = new DBOptions(fastaFile, consol);
             dbOptions.precursorMassTolerance = new MassTolerance(precTolPpm, MassToleranceUnits.ppm);
-            dbOptions.productMassTolerance = new MassTolerance(prodTolPpm, MassToleranceUnits.ppm);
+            dbOptions.productMassTolerance = new MassTolerance(prodTolDa, MassToleranceUnits.Da); 
             dbOptions.MaximumPeptideMass = 200000;
             dbOptions.OutputFolder = outputFolder;
 
             ProteaseDictionary proteases = ProteaseDictionary.Instance;
-            dbOptions.DigestionEnzyme = proteases["no enzyme"];
-            //dbOptions.DigestionEnzyme = proteases["top-down"];
+            //dbOptions.DigestionEnzyme = proteases["no enzyme"];
+            dbOptions.DigestionEnzyme = proteases["top-down"];
             dbOptions.NoEnzymeSearch = false;
             dbOptions.DecoyFusion = false;
             dbOptions.MaximumNumberOfFragmentsPerSpectrum = 400;
@@ -80,7 +80,7 @@ namespace PeptidAce.Iso.Methods
             dbOptions.variableModifications = varMods;
 
             dbOptions.addFragmentLoss = false;
-            dbOptions.addFragmentMods = false;//Gives very bad results... might be off
+            dbOptions.addFragmentMods = false;
             
             dbOptions.SaveMS1Peaks = true;
             dbOptions.SaveMSMSPeaks = true;
@@ -144,7 +144,6 @@ namespace PeptidAce.Iso.Methods
             writerCumul.AddLine(curveStr);
             writerCumul.AddLine(spikedIntensityStr);
 
-            //mixedPrecursors = new Dictionary<Sample, Dictionary<double, MixedPrecursor>>();
             mixedPrecursors = new Dictionary<Sample, List<MixedPrecursor>>();
 
             foreach (Sample mixedSample in MixedSamples) 
@@ -317,7 +316,11 @@ namespace PeptidAce.Iso.Methods
                     string titleIndividual = "Scan time,Precursor Intensity,Intensity Per Millisecond";
                     foreach (ProductMatch pm in characterizedPeptides[keyMz][sample].AllFragments)
                         titleIndividual += "," + pm.Fragment.Name + pm.fragmentPos + "^" + pm.charge;
-                    writerRatio.AddLine(titleIndividual);
+                    writerRatio.AddLine(titleIndividual); 
+                    string secondTitle = "Fragment MZ,,";
+                    foreach (ProductMatch pm in characterizedPeptides[keyMz][sample].AllFragments)
+                        secondTitle += "," + pm.theoMz;
+                    writerRatio.AddLine(secondTitle);
 
                     foreach (Query query in characterizedPeptides[keyMz][sample].Queries)
                     {

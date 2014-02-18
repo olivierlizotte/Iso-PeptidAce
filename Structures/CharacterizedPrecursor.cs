@@ -132,17 +132,19 @@ namespace PeptidAce.Iso.Structures
                     foreach (PeptideSpectrumMatch psm in Psms)
                     {
                         double timePoint = psm.Query.spectrum.RetentionTimeInMin * 1000.0 * 60.0;
+                        double peakIntensity = 0.0;
                         foreach (MsMsPeak peak in psm.Query.spectrum.Peaks)
                         {
-                            if (Math.Abs(Utilities.Numerics.CalculateMassError(peak.MZ, mz, dbOptions.productMassTolerance.Units)) <= dbOptions.productMassTolerance.Value)
-                            {
-                                newMatch.obsIntensity += peak.Intensity * DicOfPsmFactor[psm];
-                                newMatch.normalizedIntensity += (peak.Intensity / 
-                                                                this.eCurveIntensityPerMS.GetLocalArea(timePoint, timePoint + psm.Query.spectrum.InjectionTime)) * DicOfPsmFactor[psm];
-                                                                //psm.Query.spectrum.PrecursorIntensityPerMilliSecond * psm.Query.spectrum.InjectionTime)) * DicOfPsmFactor[psm];
-                                sumPsmFactor += DicOfPsmFactor[psm];
-                                newMatch.weight++;
-                            }
+                            if (peak.Intensity > 0 && Math.Abs(Utilities.Numerics.CalculateMassError(peak.MZ, mz, dbOptions.productMassTolerance.Units)) <= dbOptions.productMassTolerance.Value)
+                                peakIntensity += peak.Intensity;
+                        }
+                        if(peakIntensity > 0)
+                        {
+                            newMatch.obsIntensity += peakIntensity * DicOfPsmFactor[psm];
+                            newMatch.normalizedIntensity += (peakIntensity /
+                                                            this.eCurveIntensityPerMS.GetLocalArea(timePoint, timePoint + psm.Query.spectrum.InjectionTime)) * DicOfPsmFactor[psm];                            
+                            sumPsmFactor += DicOfPsmFactor[psm];
+                            newMatch.weight++;
                         }
                     }
                     if (newMatch.weight > 0)
@@ -168,6 +170,7 @@ namespace PeptidAce.Iso.Structures
                 {
                     pm.normalizedIntensity = 0;
                     pm.obsIntensity = 0;
+                    pm.weight = 0;
                 }
 
             return matches;
