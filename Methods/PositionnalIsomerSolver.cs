@@ -60,8 +60,8 @@ namespace PeptidAce.Iso.Methods
             dbOptions.OutputFolder = outputFolder;
 
             ProteaseDictionary proteases = ProteaseDictionary.Instance;
-            //dbOptions.DigestionEnzyme = proteases["no enzyme"];
-            dbOptions.DigestionEnzyme = proteases["top-down"];
+            dbOptions.DigestionEnzyme = proteases["no enzyme"];
+            //dbOptions.DigestionEnzyme = proteases["top-down"];
             dbOptions.NoEnzymeSearch = false;
             dbOptions.DecoyFusion = false;
             dbOptions.MaximumNumberOfFragmentsPerSpectrum = 400;
@@ -76,7 +76,7 @@ namespace PeptidAce.Iso.Methods
             foreach (string strMod in ModificationDictionary.Instance.Keys)
                 varMods.Add(ModificationDictionary.Instance[strMod]);
 
-            dbOptions.maximumVariableModificationIsoforms = 1024;
+            dbOptions.maximumVariableModificationIsoforms = 2048;// 1024;
             dbOptions.variableModifications = varMods;
 
             dbOptions.addFragmentLoss = false;
@@ -86,7 +86,18 @@ namespace PeptidAce.Iso.Methods
             dbOptions.SaveMSMSPeaks = true;
             dbOptions.LoadSpectraIfFound = true;
 
-            dbOptions.NbPSMToKeep = 100;
+            dbOptions.NbPSMToKeep = 16;
+
+            dbOptions.dProduct = 0.0;
+            dbOptions.dPrecursor = 0.12;
+            dbOptions.dMatchingProductFraction = 0.45;
+            dbOptions.dMatchingProduct = 1;// 0;
+            dbOptions.dIntensityFraction = 0.13;
+            dbOptions.dIntensity = 0;
+            dbOptions.dProtein = 0;
+            dbOptions.dPeptideScore = 0.3;
+            dbOptions.dFragmentScore = 0.0;
+
             return dbOptions;
         }
 
