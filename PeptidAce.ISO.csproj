@@ -232,6 +232,7 @@
     <Compile Include="Structures\CharacterizedPrecursor.cs" />
     <Compile Include="Structures\MixedPrecursor.cs" />
     <Compile Include="Structures\PrecursorIon.cs" />
+    <Compile Include="UnitTests\Uptimizer.cs" />
     <Page Include="Content\PeptideAce.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

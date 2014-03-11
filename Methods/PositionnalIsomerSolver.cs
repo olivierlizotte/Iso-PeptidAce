@@ -51,7 +51,7 @@ namespace PeptidAce.Iso.Methods
         /// <param name="outputFolder"></param>
         /// <param name="consol"></param>
         /// <returns></returns>
-        private DBOptions CreateOptions(string fastaFile, string outputFolder, IConSol consol)
+        public static DBOptions CreateOptions(string fastaFile, string outputFolder, double precTolPpm, double prodTolDa, IConSol consol)
         {
             DBOptions dbOptions = new DBOptions(fastaFile, consol);
             dbOptions.precursorMassTolerance = new MassTolerance(precTolPpm, MassToleranceUnits.ppm);
@@ -76,7 +76,7 @@ namespace PeptidAce.Iso.Methods
             foreach (string strMod in ModificationDictionary.Instance.Keys)
                 varMods.Add(ModificationDictionary.Instance[strMod]);
 
-            dbOptions.maximumVariableModificationIsoforms = 2048;// 1024;
+            dbOptions.maximumVariableModificationIsoforms = 4096;// 2048;// 1024;
             dbOptions.variableModifications = varMods;
 
             dbOptions.addFragmentLoss = false;
@@ -88,15 +88,25 @@ namespace PeptidAce.Iso.Methods
 
             dbOptions.NbPSMToKeep = 16;
 
+            dbOptions.dProduct = 0.0886869235377232;
+            dbOptions.dPrecursor = 0.714634842572098;
+            dbOptions.dMatchingProductFraction = 0.432872176371921;
+            dbOptions.dMatchingProduct = 0.00492531899592156;
+            dbOptions.dIntensityFraction = 0.73908941342453;
+            dbOptions.dIntensity = 0;// 0.687398171372431;
+            dbOptions.dProtein = 0.574124578188231;
+            dbOptions.dPeptideScore = 0.315866923572434;
+            dbOptions.dFragmentScore = 0.0322849750669137;//*/
+            /*
             dbOptions.dProduct = 0.0;
             dbOptions.dPrecursor = 0.12;
             dbOptions.dMatchingProductFraction = 0.45;
-            dbOptions.dMatchingProduct = 1;// 0;
+            dbOptions.dMatchingProduct = 0;// 0;
             dbOptions.dIntensityFraction = 0.13;
             dbOptions.dIntensity = 0;
             dbOptions.dProtein = 0;
             dbOptions.dPeptideScore = 0.3;
-            dbOptions.dFragmentScore = 0.0;
+            dbOptions.dFragmentScore = 0.0;//*/
 
             return dbOptions;
         }
@@ -112,7 +122,7 @@ namespace PeptidAce.Iso.Methods
         /// <param name="conSol"></param>
         public void Solve(string[] spikedRaws, string[] mixedRaws, string fastaFile, string folderToOutputTo, IConSol conSol)
         {
-            dbOptions = CreateOptions(fastaFile, folderToOutputTo, conSol);
+            dbOptions = CreateOptions(fastaFile, folderToOutputTo, precTolPpm, prodTolDa, conSol);
             SpikedSamples = new Samples(dbOptions);
             for (int i = 0; i < spikedRaws.Length; i++)
                 SpikedSamples.Add(new Sample(i + 1, 1, 1, spikedRaws[i], spikedRaws[i], 0, ""));
@@ -302,9 +312,10 @@ namespace PeptidAce.Iso.Methods
 
             for (int i = 0; i < mixedPrecursor.eCurveIntensityCount.intensityCount.Count; i++)
             {
-                line = mixedPrecursor.eCurveIntensityCount.time[i] / (1000.0 * 60.0) + "," + mixedPrecursor.eCurveIntensityCount.intensityCount[i];
+                line = mixedPrecursor.eCurveIntensityCount.time[i] / (1000.0 * 60.0) + "," + mixedPrecursor.eCurveIntensityCount.intensityCount[i] + ",";
                 foreach (CharacterizedPrecursor charPep in ratios.Keys)
                     line += "," + ratios[charPep].eCurvePerMs.InterpolateIntensity(mixedPrecursor.eCurveIntensityCount.time[i]);
+                line += ",";
                 foreach (CharacterizedPrecursor charPep in ratios.Keys)
                     line += "," + ratios[charPep].eCurveCount.InterpolateIntensity(mixedPrecursor.eCurveIntensityCount.time[i]);
                 writerRatio.AddLine(line);

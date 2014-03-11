@@ -146,7 +146,10 @@ namespace PeptidAce.ModernUI.Content
         {
             if (conSol == null)
                 conSol = new ConSolBasic(AddTextOutput);
-            
+
+
+            //PeptidAce.Iso.UnitTests.PisTest.Uptimize();
+
             if (ButtonRun.IsEnabled && CheckParams())
             {
                 ButtonRun.IsEnabled = false;
