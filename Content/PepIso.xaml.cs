@@ -148,6 +148,7 @@ namespace PeptidAce.ModernUI.Content
                 conSol = new ConSolBasic(AddTextOutput);
 
 
+            //PeptidAce.Iso.UnitTests.StatsMaker.ProjectMerge(conSol);
             //PeptidAce.Iso.UnitTests.PisTest.Uptimize();
 
             if (ButtonRun.IsEnabled && CheckParams())
@@ -157,9 +158,9 @@ namespace PeptidAce.ModernUI.Content
 
                 runningTask = new Task(() =>
                 {
+                    PositionnalIsomerSolver newSolver = new PositionnalIsomerSolver();
                     try
                     {
-                        PositionnalIsomerSolver newSolver = new PositionnalIsomerSolver();
                         newSolver.precTolPpm = precursorMassTolPPm;
                         newSolver.prodTolDa = productMassTolPPm;
                         newSolver.nbMinFragments = nbMinFragments;
@@ -167,6 +168,15 @@ namespace PeptidAce.ModernUI.Content
                         newSolver.Solve(peptideFiles, mixedFiles, fastaFile, Utilities.vsCSV.GetFolder(mixedFiles[0]), conSol);
 
                         solver = newSolver;
+                    }
+                    catch(Exception ex)
+                    {
+                        AddTextOutput(ex.Message);
+                        AddTextOutput(ex.StackTrace);
+                    }
+
+                    try
+                    {
                         ButtonRun.Dispatcher.Invoke(
                             System.Windows.Threading.DispatcherPriority.Normal,
                             new Action(
@@ -178,12 +188,11 @@ namespace PeptidAce.ModernUI.Content
                                                   "\n" + Utilities.vsCSV.GetFolder(mixedFiles[0]) + "Combined" +
                                                   "\n" + Utilities.vsCSV.GetFolder(mixedFiles[0]) + "Individual");
 
-
-                                    ModernUI.Pages.Home.UpdateLinks(newSolver.SpikedSamples, newSolver.mixedPrecursors);                                                  
+                                    ModernUI.Pages.Home.UpdateLinks(newSolver.SpikedSamples, newSolver.mixedPrecursors);
                                 }
                             ));
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
                         AddTextOutput(ex.Message);
                         AddTextOutput(ex.StackTrace);

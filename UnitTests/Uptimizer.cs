@@ -12,23 +12,23 @@ namespace PeptidAce.Iso.UnitTests
         public static void Uptimize()
         {
             string fastaFile = @"C:\_IRIC\Data\NB\peptide.fasta";
-            DBOptions options = PositionnalIsomerSolver.CreateOptions(fastaFile, @"C:\_IRIC\Data\NB\Units\", 8, 0.05, new PeptidAce.Utilities.Interfaces.ConSolCommandLine());
-            
-            options.dProduct =0.0886869235377232;
-            options.dPrecursor =0.714634842572098;
-            options.dMatchingProductFraction =0.432872176371921;
-            options.dMatchingProduct =0.00492531899592156;
-            options.dIntensityFraction =0.73908941342453;
-            options.dIntensity = 0;// 0.687398171372431;
-            options.dProtein =0.574124578188231;
-            options.dPeptideScore =0.315866923572434;
-            options.dFragmentScore = 0.0322849750669137;//*/
+            DBOptions dbOptions = PositionnalIsomerSolver.CreateOptions(fastaFile, @"C:\_IRIC\Data\NB\Units\", 8, 0.05, new PeptidAce.Utilities.Interfaces.ConSolCommandLine());
 
-
+            dbOptions.dProduct = 0.0917981081138356;
+            dbOptions.dPrecursor = 0.345789190542786;
+            dbOptions.dMatchingProductFraction = 0.427418045898628;
+            dbOptions.dMatchingProduct = 0;
+            dbOptions.dIntensityFraction = 0.429418127252449;
+            dbOptions.dIntensity = 0;
+            dbOptions.dProtein = 0.692270441303156;
+            dbOptions.dPeptideScore = 0.636739763262095;
+            dbOptions.dFragmentScore = 0.0229058195943506;
 
             string project = @"C:\_IRIC\Data\NB\ProjectTest_AllAce_Spiked_19Oct.csv";
-            Samples samples = new Samples(project, 0, options);
-            Uptimizer.Run(samples, options);
+            Samples samples = new Samples(project, 0, dbOptions);
+            Uptimizer.Run(samples, dbOptions);
+
+            dbOptions.Save(dbOptions.OutputFolder + "UptimizedOptions.csv");
         }
     }
 
@@ -36,6 +36,9 @@ namespace PeptidAce.Iso.UnitTests
     {
         public static void Run(Samples samples, DBOptions options)
         {
+            //PeptidAce.Utilities.Methods.UptimizeOptions upper = new Utilities.Methods.UptimizeOptions(options, samples);
+            //upper.Run();
+            
             Ace ace = new Ace(options, samples);
             ace.Preload(false, false);            
             ace.PrepareQueries();
@@ -52,7 +55,7 @@ namespace PeptidAce.Iso.UnitTests
                         query.precursor.psms_AllPossibilities.Clear();
                         if (query.precursor.psms != null)
                             query.precursor.psms.Clear();
-                    }//*/
+                    }
 
                     Result rez = ace.LaunchSearch(ace.AllQueries);
                     int nbCorrectMatches = 0;
@@ -79,8 +82,9 @@ namespace PeptidAce.Iso.UnitTests
                     Console.WriteLine(ex.Message);
                 }
             }
-
+            
             options.Save(options.OutputFolder + "UptimizedOptions.csv");
+            //*/
         }
     }
 }

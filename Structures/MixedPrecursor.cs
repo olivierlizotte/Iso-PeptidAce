@@ -72,7 +72,8 @@ namespace PeptidAce.Iso.Structures
         {
             Dictionary<Dictionary<CharacterizedPrecursor, MaxFlowElutionCurve>, double> dicOfCorrelations = new Dictionary<Dictionary<CharacterizedPrecursor, MaxFlowElutionCurve>, double>();
             foreach (Dictionary<CharacterizedPrecursor, MaxFlowElutionCurve> dicOfCurve in dicOfCurveErrorsP.Keys)
-                dicOfCorrelations.Add(dicOfCurve, 1.0 / (double)dicOfCurveErrorsP.Count);
+                if(dicOfCurve.Count > 0)
+                    dicOfCorrelations.Add(dicOfCurve, 1.0 / (double)dicOfCurveErrorsP.Count);
 
             Dictionary<Dictionary<CharacterizedPrecursor, MaxFlowElutionCurve>, double> lastDicOfCurves = dicOfCurveErrorsP;
             /*
@@ -156,10 +157,13 @@ namespace PeptidAce.Iso.Structures
             {
                 foreach (CharacterizedPrecursor cPep in dicOfCurve.Keys)
                 {
-                    if(!cumulDic.ContainsKey(cPep))
-                        cumulDic.Add(cPep, new ElutionCurveMerger());
+                    if (dicOfCorrelations.ContainsKey(dicOfCurve))
+                    {
+                        if (!cumulDic.ContainsKey(cPep))
+                            cumulDic.Add(cPep, new ElutionCurveMerger());
 
-                    cumulDic[cPep].AddCurve(dicOfCurve[cPep], dicOfCorrelations[dicOfCurve]);
+                        cumulDic[cPep].AddCurve(dicOfCurve[cPep], dicOfCorrelations[dicOfCurve]);
+                    }
                 }
             }
             PeptideRatios = new Dictionary<CharacterizedPrecursor, MaxFlowElutionCurve>();

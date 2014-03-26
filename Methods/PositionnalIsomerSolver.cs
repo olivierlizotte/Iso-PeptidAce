@@ -88,6 +88,18 @@ namespace PeptidAce.Iso.Methods
 
             dbOptions.NbPSMToKeep = 16;
 
+            //18 Mars 2014 Uptimized scores
+            dbOptions.dProduct = 0.0917981081138356;
+            dbOptions.dPrecursor = 0.345789190542786;
+            dbOptions.dMatchingProductFraction = 0.427418045898628;
+            dbOptions.dMatchingProduct = 0;
+            dbOptions.dIntensityFraction = 0.429418127252449;
+            dbOptions.dIntensity = 0;
+            dbOptions.dProtein = 0.692270441303156;
+            dbOptions.dPeptideScore = 0.636739763262095;
+            dbOptions.dFragmentScore = 0.0229058195943506;
+
+            /*
             dbOptions.dProduct = 0.0886869235377232;
             dbOptions.dPrecursor = 0.714634842572098;
             dbOptions.dMatchingProductFraction = 0.432872176371921;
@@ -107,7 +119,17 @@ namespace PeptidAce.Iso.Methods
             dbOptions.dProtein = 0;
             dbOptions.dPeptideScore = 0.3;
             dbOptions.dFragmentScore = 0.0;//*/
-
+            /*
+            //Morpheus original score
+            dbOptions.dProduct = 1.0;
+            dbOptions.dPrecursor = 0;
+            dbOptions.dMatchingProductFraction = 0;
+            dbOptions.dMatchingProduct = 0;
+            dbOptions.dIntensityFraction = 1;
+            dbOptions.dIntensity = 0;
+            dbOptions.dProtein = 0;
+            dbOptions.dPeptideScore = 0;
+            dbOptions.dFragmentScore = 0.0;//*/
             return dbOptions;
         }
 
@@ -137,149 +159,154 @@ namespace PeptidAce.Iso.Methods
 
             //Precompute Mixed peptide identifications
             mixedResult = Ace.Start(dbOptions, MixedSamples, false, false);
-            mixedResult.ExportPSMs(1, dbOptions.OutputFolder + "Identifications" + System.IO.Path.DirectorySeparatorChar + "MixedSamplesPSMs.csv");
-
-            conSol.WriteLine("Computing gradient descents...");
-
-            //Compute all usable spiked peptides
-            characterizedPeptides = CharacterizedPrecursor.GetSpikedPrecursors(SpikedSamples, SpikedResult, dbOptions, nbMinFragments, nbMaxFragments);
-            ExportSpikedSampleResult(characterizedPeptides, dbOptions);
-
-            vsCSVWriter writerCumul = new vsCSVWriter(OutputFolder + "Results.csv");
-            string titleCombined = "Mixed Sample,Precursor";            
-            string curveStr = "Polynomial Curve,";
-            string spikedIntensityStr = "Area under the curve,";
-            foreach(double precursor in characterizedPeptides.Keys)
-                foreach (CharacterizedPrecursor charPrec in characterizedPeptides[precursor].Values)
-                {
-                    titleCombined += "," + charPrec.Peptide.Sequence + " Charge " + charPrec.Charge;
-
-                    if (charPrec.eCurveIntensityCount.Coefficients != null && charPrec.eCurveIntensityCount.Coefficients.Length == 3)
-                        curveStr += "," + charPrec.eCurveIntensityCount.Coefficients[0] + "x^2 + " + charPrec.eCurveIntensityCount.Coefficients[1] + "x" + charPrec.eCurveIntensityCount.Coefficients[2];
-                    else
-                        curveStr += ",NA";
-
-                    spikedIntensityStr += "," + charPrec.eCurveIntensityCount.Area;
-                }
-            writerCumul.AddLine(titleCombined);
-            writerCumul.AddLine(curveStr);
-            writerCumul.AddLine(spikedIntensityStr);
-
-            mixedPrecursors = new Dictionary<Sample, List<MixedPrecursor>>();
-
-            foreach (Sample mixedSample in MixedSamples) 
-                mixedPrecursors.Add(mixedSample, MixedPrecursor.GetMixedPrecursors(mixedSample, mixedResult, dbOptions, characterizedPeptides));
-
-            //Get the list of precursors to characterize
-            foreach (Sample mixedSample in MixedSamples)
+            if (mixedResult == null)
+                conSol.WriteLine("OOPS! No queries could be extracted from the list of mixed spectrum files...");
+            else
             {
-                foreach (double keyMz in characterizedPeptides.Keys)
-                {
-                    List<Dictionary<CharacterizedPrecursor, MaxFlowElutionCurve>> listOfRatios = new List<Dictionary<CharacterizedPrecursor, MaxFlowElutionCurve>>();
-                    foreach(MixedPrecursor mPrec in mixedPrecursors[mixedSample])
-                        if(mPrec.MZ == keyMz)
-                        {
-                            // Compute Max Flow for this precursor
-                            Dictionary<CharacterizedPrecursor, MaxFlowElutionCurve> ratios = GetRatios(characterizedPeptides, mPrec);
-                            listOfRatios.Add(ratios);
+                mixedResult.ExportPSMs(1, dbOptions.OutputFolder + "Identifications" + System.IO.Path.DirectorySeparatorChar + "MixedSamplesPSMs.csv");
 
-                            ExportMixedSampleResult(ratios, mixedSample, mPrec, keyMz, dbOptions);
-                        }
+                conSol.WriteLine("Computing gradient descents...");
 
-                    bool isEmpty = true;
-                    string resultStr = vsCSV.GetFileName(mixedSample.sSDF) + "," + keyMz;
-                    foreach (double precursor in characterizedPeptides.Keys)
+                //Compute all usable spiked peptides
+                characterizedPeptides = CharacterizedPrecursor.GetSpikedPrecursors(SpikedSamples, SpikedResult, dbOptions, nbMinFragments, nbMaxFragments);
+                ExportSpikedSampleResult(characterizedPeptides, dbOptions);
+
+                vsCSVWriter writerCumul = new vsCSVWriter(OutputFolder + "Results.csv");
+                string titleCombined = "Mixed Sample,Precursor";
+                string curveStr = "Polynomial Curve,";
+                string spikedIntensityStr = "Area under the curve,";
+                foreach (double precursor in characterizedPeptides.Keys)
+                    foreach (CharacterizedPrecursor charPrec in characterizedPeptides[precursor].Values)
                     {
-                        foreach (CharacterizedPrecursor charPrec in characterizedPeptides[precursor].Values)
-                        {
-                            double cumulArea = 0.0;
-                            foreach (Dictionary<CharacterizedPrecursor, MaxFlowElutionCurve> ratios in listOfRatios)
-                                if (ratios.ContainsKey(charPrec))
-                                    cumulArea += ratios[charPrec].eCurvePerMs.Area;
-                            resultStr += "," + cumulArea;
-                            if (cumulArea > 0)
-                                isEmpty = false;
-                        }
+                        titleCombined += "," + charPrec.Peptide.Sequence + " Charge " + charPrec.Charge;
+
+                        if (charPrec.eCurveIntensityCount.Coefficients != null && charPrec.eCurveIntensityCount.Coefficients.Length == 3)
+                            curveStr += "," + charPrec.eCurveIntensityCount.Coefficients[0] + "x^2 + " + charPrec.eCurveIntensityCount.Coefficients[1] + "x" + charPrec.eCurveIntensityCount.Coefficients[2];
+                        else
+                            curveStr += ",NA";
+
+                        spikedIntensityStr += "," + charPrec.eCurveIntensityCount.Area;
                     }
-                    if(!isEmpty)
-                        writerCumul.AddLine(resultStr);
-                }
-            }
-            writerCumul.WriteToFile();
+                writerCumul.AddLine(titleCombined);
+                writerCumul.AddLine(curveStr);
+                writerCumul.AddLine(spikedIntensityStr);
 
-            //List Modifications
-            Dictionary<Modification, double> dicOfIntensityPerMod = new Dictionary<Modification,double>();
-            foreach(Sample sample in mixedPrecursors.Keys)
-                foreach(MixedPrecursor mP in mixedPrecursors[sample])
-                    foreach(CharacterizedPrecursor cP in mP.PeptideRatios.Keys)
-                        if(cP.Peptide.VariableModifications != null)
-                            foreach(Modification mod in cP.Peptide.VariableModifications.Values)
-                                if(!dicOfIntensityPerMod.ContainsKey(mod))
-                                    dicOfIntensityPerMod.Add(mod, 0.0);
+                mixedPrecursors = new Dictionary<Sample, List<MixedPrecursor>>();
 
+                foreach (Sample mixedSample in MixedSamples)
+                    mixedPrecursors.Add(mixedSample, MixedPrecursor.GetMixedPrecursors(mixedSample, mixedResult, dbOptions, characterizedPeptides));
 
-            //Compute site occupancy for identical sequences (real positionnal isomers)
-            vsCSVWriter writerSitesOccupancy = new vsCSVWriter(OutputFolder + "Results_SiteOccupancy.csv");
-            List<Protein> AllProteins = Ace.ReadProteomeFromFasta(fastaFile, false, dbOptions);
-            foreach(Protein protein in AllProteins)
-            { 
-                string newTitleProtein = protein.Description.Replace(',', ' ') + "," + protein.Sequence;
-                for(int i = 0; i < protein.Sequence.Length; i++)
-                    newTitleProtein += "," + protein[i].ToString();
-                writerSitesOccupancy.AddLine(newTitleProtein);
-
-                foreach (Sample mixedSample in mixedPrecursors.Keys)
-                {                      
-                    string coverage = "Coverage," + mixedSample.Name;
-                    for(int i = 0; i < protein.Sequence.Length; i++)
+                //Get the list of precursors to characterize
+                foreach (Sample mixedSample in MixedSamples)
+                {
+                    foreach (double keyMz in characterizedPeptides.Keys)
                     {
-                        double cumulSite = 0.0;
-                        newTitleProtein += "," + protein[i].ToString();                    
-                        foreach(MixedPrecursor mP in mixedPrecursors[mixedSample])
-                        {
-                            foreach(CharacterizedPrecursor cP in mP.PeptideRatios.Keys)
+                        List<Dictionary<CharacterizedPrecursor, MaxFlowElutionCurve>> listOfRatios = new List<Dictionary<CharacterizedPrecursor, MaxFlowElutionCurve>>();
+                        foreach (MixedPrecursor mPrec in mixedPrecursors[mixedSample])
+                            if (mPrec.MZ == keyMz)
                             {
-                                if(i + 1 >= cP.Peptide.StartResidueNumber && i + 1 <= cP.Peptide.EndResidueNumber)
-                                    cumulSite += mP.PeptideRatios[cP].eCurvePerMs.Area;
+                                // Compute Max Flow for this precursor
+                                Dictionary<CharacterizedPrecursor, MaxFlowElutionCurve> ratios = GetRatios(characterizedPeptides, mPrec, dbOptions, nbMinFragments, nbMaxFragments);
+                                listOfRatios.Add(ratios);
+
+                                ExportMixedSampleResult(ratios, mixedSample, mPrec, keyMz, dbOptions);
+                            }
+
+                        bool isEmpty = true;
+                        string resultStr = vsCSV.GetFileName(mixedSample.sSDF) + "," + keyMz;
+                        foreach (double precursor in characterizedPeptides.Keys)
+                        {
+                            foreach (CharacterizedPrecursor charPrec in characterizedPeptides[precursor].Values)
+                            {
+                                double cumulArea = 0.0;
+                                foreach (Dictionary<CharacterizedPrecursor, MaxFlowElutionCurve> ratios in listOfRatios)
+                                    if (ratios.ContainsKey(charPrec))
+                                        cumulArea += ratios[charPrec].eCurvePerMs.Area;
+                                resultStr += "," + cumulArea;
+                                if (cumulArea > 0)
+                                    isEmpty = false;
                             }
                         }
-                        coverage += "," + cumulSite;
+                        if (!isEmpty)
+                            writerCumul.AddLine(resultStr);
                     }
-                    writerSitesOccupancy.AddLine(coverage);
                 }
-                
-                foreach(Modification mod in dicOfIntensityPerMod.Keys)
+                writerCumul.WriteToFile();
+
+                //List Modifications
+                Dictionary<Modification, double> dicOfIntensityPerMod = new Dictionary<Modification, double>();
+                foreach (Sample sample in mixedPrecursors.Keys)
+                    foreach (MixedPrecursor mP in mixedPrecursors[sample])
+                        foreach (CharacterizedPrecursor cP in mP.PeptideRatios.Keys)
+                            if (cP.Peptide.VariableModifications != null)
+                                foreach (Modification mod in cP.Peptide.VariableModifications.Values)
+                                    if (!dicOfIntensityPerMod.ContainsKey(mod))
+                                        dicOfIntensityPerMod.Add(mod, 0.0);
+
+
+                //Compute site occupancy for identical sequences (real positionnal isomers)
+                vsCSVWriter writerSitesOccupancy = new vsCSVWriter(OutputFolder + "Results_SiteOccupancy.csv");
+                List<Protein> AllProteins = Ace.ReadProteomeFromFasta(fastaFile, false, dbOptions);
+                foreach (Protein protein in AllProteins)
                 {
-                    Dictionary<Sample, string> dicOfLines = new Dictionary<Sample,string>();
-                    for(int i = 0; i < protein.Sequence.Length; i++)
-                    {                
-                        foreach (Sample mixedSample in mixedPrecursors.Keys)
-                        {   
-                            double cumulModArea = 0.0;
-                            foreach(MixedPrecursor mP in mixedPrecursors[mixedSample])
+                    string newTitleProtein = protein.Description.Replace(',', ' ') + "," + protein.Sequence;
+                    for (int i = 0; i < protein.Sequence.Length; i++)
+                        newTitleProtein += "," + protein[i].ToString();
+                    writerSitesOccupancy.AddLine(newTitleProtein);
+
+                    foreach (Sample mixedSample in mixedPrecursors.Keys)
+                    {
+                        string coverage = "Coverage," + mixedSample.Name;
+                        for (int i = 0; i < protein.Sequence.Length; i++)
+                        {
+                            double cumulSite = 0.0;
+                            newTitleProtein += "," + protein[i].ToString();
+                            foreach (MixedPrecursor mP in mixedPrecursors[mixedSample])
                             {
-                                foreach(CharacterizedPrecursor cP in mP.PeptideRatios.Keys)
+                                foreach (CharacterizedPrecursor cP in mP.PeptideRatios.Keys)
                                 {
-                                    if(i + 1 >= cP.Peptide.StartResidueNumber && i + 1 <= cP.Peptide.EndResidueNumber &&
-                                        cP.Peptide.VariableModifications != null)
-                                    {
-                                        foreach(int pos in cP.Peptide.VariableModifications.Keys)
-                                            if(cP.Peptide.StartResidueNumber + pos - 2 == i + 1 && cP.Peptide.VariableModifications[pos] == mod)
-                                                cumulModArea += mP.PeptideRatios[cP].eCurvePerMs.Area;
-                                    }
+                                    if (i + 1 >= cP.Peptide.StartResidueNumber && i + 1 <= cP.Peptide.EndResidueNumber)
+                                        cumulSite += mP.PeptideRatios[cP].eCurvePerMs.Area;
                                 }
                             }
-                            if(!dicOfLines.ContainsKey(mixedSample))
-                                dicOfLines.Add(mixedSample, mod.Description + "," + mixedSample.Name + "," + cumulModArea);
-                            else
-                                dicOfLines[mixedSample] += "," + cumulModArea;
+                            coverage += "," + cumulSite;
                         }
+                        writerSitesOccupancy.AddLine(coverage);
                     }
-                    foreach(string line in dicOfLines.Values)
-                        writerSitesOccupancy.AddLine(line);
+
+                    foreach (Modification mod in dicOfIntensityPerMod.Keys)
+                    {
+                        Dictionary<Sample, string> dicOfLines = new Dictionary<Sample, string>();
+                        for (int i = 0; i < protein.Sequence.Length; i++)
+                        {
+                            foreach (Sample mixedSample in mixedPrecursors.Keys)
+                            {
+                                double cumulModArea = 0.0;
+                                foreach (MixedPrecursor mP in mixedPrecursors[mixedSample])
+                                {
+                                    foreach (CharacterizedPrecursor cP in mP.PeptideRatios.Keys)
+                                    {
+                                        if (i + 1 >= cP.Peptide.StartResidueNumber && i + 1 <= cP.Peptide.EndResidueNumber &&
+                                            cP.Peptide.VariableModifications != null)
+                                        {
+                                            foreach (int pos in cP.Peptide.VariableModifications.Keys)
+                                                if (cP.Peptide.StartResidueNumber + pos - 2 == i + 1 && cP.Peptide.VariableModifications[pos] == mod)
+                                                    cumulModArea += mP.PeptideRatios[cP].eCurvePerMs.Area;
+                                        }
+                                    }
+                                }
+                                if (!dicOfLines.ContainsKey(mixedSample))
+                                    dicOfLines.Add(mixedSample, mod.Description + "," + mixedSample.Name + "," + cumulModArea);
+                                else
+                                    dicOfLines[mixedSample] += "," + cumulModArea;
+                            }
+                        }
+                        foreach (string line in dicOfLines.Values)
+                            writerSitesOccupancy.AddLine(line);
+                    }
                 }
+                writerSitesOccupancy.WriteToFile();
             }
-            writerSitesOccupancy.WriteToFile();
         }
 
         /// <summary>
@@ -312,7 +339,7 @@ namespace PeptidAce.Iso.Methods
 
             for (int i = 0; i < mixedPrecursor.eCurveIntensityCount.intensityCount.Count; i++)
             {
-                line = mixedPrecursor.eCurveIntensityCount.time[i] / (1000.0 * 60.0) + "," + mixedPrecursor.eCurveIntensityCount.intensityCount[i] + ",";
+                line = mixedPrecursor.eCurveIntensityCount.time[i] / (1000.0 * 60.0) + "," + mixedPrecursor.eCurveIntensityCount.InterpolateIntensity(mixedPrecursor.eCurveIntensityCount.time[i]) + ",";
                 foreach (CharacterizedPrecursor charPep in ratios.Keys)
                     line += "," + ratios[charPep].eCurvePerMs.InterpolateIntensity(mixedPrecursor.eCurveIntensityCount.time[i]);
                 line += ",";
@@ -368,7 +395,7 @@ namespace PeptidAce.Iso.Methods
         /// <param name="spikes"></param>
         /// <param name="mixedPrecursor"></param>
         /// <returns></returns>
-        private Dictionary<CharacterizedPrecursor, MaxFlowElutionCurve> GetRatios(Dictionary<double, Dictionary<Sample, CharacterizedPrecursor>> spikes, MixedPrecursor mixedPrecursor)        
+        public static Dictionary<CharacterizedPrecursor, MaxFlowElutionCurve> GetRatios(Dictionary<double, Dictionary<Sample, CharacterizedPrecursor>> spikes, MixedPrecursor mixedPrecursor, DBOptions dbOptions, int nbMinFragments, int nbMaxFragments)        
         {
             Dictionary<Dictionary<CharacterizedPrecursor, MaxFlowElutionCurve>, double> DicOfCurveErrors = new Dictionary<Dictionary<CharacterizedPrecursor, MaxFlowElutionCurve>, double>();
             
