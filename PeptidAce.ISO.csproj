@@ -12,10 +12,10 @@
     <AssemblyName>Iso.PeptidAce</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <IsWebBootstrapper>true</IsWebBootstrapper>
     <PublishUrl>\\serv02-iric\Groupe\Thibault\Olivier\-= Iso.PeptidAce =-\</PublishUrl>
     <Install>true</Install>
-    <InstallFrom>Unc</InstallFrom>
+    <InstallFrom>Web</InstallFrom>
     <UpdateEnabled>true</UpdateEnabled>
     <UpdateMode>Foreground</UpdateMode>
     <UpdateInterval>7</UpdateInterval>
@@ -23,13 +23,16 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
+    <InstallUrl>http://proteomics.iric.ca/tools/Iso-PeptidAce/</InstallUrl>
     <SupportUrl>http://proteomics.iric.ca/#/Equipe</SupportUrl>
     <ErrorReportUrl>http://proteomics.iric.ca/#/Equipe</ErrorReportUrl>
     <TargetCulture>en-CA</TargetCulture>
     <ProductName>Iso.PeptidAce</ProductName>
     <PublisherName>IRIC - University of Montreal</PublisherName>
     <SuiteName>PeptidAce</SuiteName>
-    <ApplicationRevision>28</ApplicationRevision>
+    <CreateWebPageOnPublish>true</CreateWebPageOnPublish>
+    <WebPage>publish.htm</WebPage>
+    <ApplicationRevision>32</ApplicationRevision>
     <ApplicationVersion>1.2.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -188,12 +191,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\Program Files\ProteoWizard\ProteoWizard 3.0.5215\MassSpecDataReader.dll</HintPath>
     </Reference>
-    <Reference Include="MathNet.Numerics, Version=2.6.1.30, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="MathNet.Numerics, Version=3.0.0.46, Culture=neutral, PublicKeyToken=cd8b63ad3d691a37, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\MathNet.Numerics.2.6.2\lib\net40\MathNet.Numerics.dll</HintPath>
-    </Reference>
-    <Reference Include="MathNet.Numerics.IO">
-      <HintPath>..\packages\MathNet.Numerics.2.6.2\lib\net40\MathNet.Numerics.IO.dll</HintPath>
+      <HintPath>..\packages\MathNet.Numerics.Signed.3.0.0-beta01\lib\net40\MathNet.Numerics.dll</HintPath>
     </Reference>
     <Reference Include="pwiz.CommonUtil, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>

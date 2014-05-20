@@ -12,7 +12,7 @@ namespace PeptidAce.Iso.UnitTests
         public static void Uptimize()
         {
             string fastaFile = @"C:\_IRIC\Data\NB\peptide.fasta";
-            DBOptions dbOptions = PositionnalIsomerSolver.CreateOptions(fastaFile, @"C:\_IRIC\Data\NB\Units\", 8, 0.05, new PeptidAce.Utilities.Interfaces.ConSolCommandLine());
+            DBOptions dbOptions = PositionnalIsomerSolver.CreateOptions(fastaFile, @"C:\_IRIC\Data\NB\Units2\", 8, 0.05, new PeptidAce.Utilities.Interfaces.ConSolCommandLine());
 
             dbOptions.dProduct = 0.0917981081138356;
             dbOptions.dPrecursor = 0.345789190542786;
@@ -23,8 +23,9 @@ namespace PeptidAce.Iso.UnitTests
             dbOptions.dProtein = 0.692270441303156;
             dbOptions.dPeptideScore = 0.636739763262095;
             dbOptions.dFragmentScore = 0.0229058195943506;
-
-            string project = @"C:\_IRIC\Data\NB\ProjectTest_AllAce_Spiked_19Oct.csv";
+            
+            dbOptions.fullFragment = new FullFragments(true);
+            string project = @"C:\_IRIC\Data\NB\ProjectTest_AllAce_Spiked_QEPlus_Apr21.csv";
             Samples samples = new Samples(project, 0, dbOptions);
             Uptimizer.Run(samples, dbOptions);
 

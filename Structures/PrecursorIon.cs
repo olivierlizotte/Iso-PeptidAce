@@ -25,6 +25,8 @@ namespace PeptidAce.Iso.Structures
         public Queries Queries;
         //Sample file associated to this precursor
         public Sample Sample;
+        //Intensity count at peak top
+        public double PeakTopIntensity;
 
         public PrecursorIon(Sample sample, IEnumerable<Query> queries, double mz, int charge)
         {
@@ -38,15 +40,25 @@ namespace PeptidAce.Iso.Structures
             this.Queries.Sort(Query.AscendingRetentionTimeComparison);
             Dictionary<double, double> dicOfTimeInMsVsIntensityPerMs = new Dictionary<double, double>();
             Dictionary<double, double> dicOfTimeInMsVsIntensityCount = new Dictionary<double, double>();
+            PeakTopIntensity = 0.0;
             foreach (Query query in this.Queries)
             {
                 double time = query.spectrum.RetentionTimeInMin * 60.0 * 1000.0;
                 dicOfTimeInMsVsIntensityPerMs.Add(time, query.spectrum.PrecursorIntensityPerMilliSecond);
                 dicOfTimeInMsVsIntensityCount.Add(time, query.spectrum.PrecursorIntensity);
+                if (query.spectrum.PrecursorIntensity > PeakTopIntensity)
+                    PeakTopIntensity = query.spectrum.PrecursorIntensity;
             }
             this.eCurveIntensityCount = ElutionCurve.Create(dicOfTimeInMsVsIntensityCount);//dicOfTimeInMsVsIntensityPerMs);
             this.eCurveIntensityPerMS = ElutionCurve.Create(dicOfTimeInMsVsIntensityPerMs);
             this.Sample = sample;
+        }
+
+        public void AddQuery(Query query)
+        {
+            if (query.spectrum.PrecursorIntensity > PeakTopIntensity)
+                PeakTopIntensity = query.spectrum.PrecursorIntensity;
+            Queries.Add(query);
         }
         
         /// <summary>
@@ -85,11 +97,11 @@ namespace PeptidAce.Iso.Structures
                     if (!DicOfSpectrumMasses.ContainsKey(foundKey))
                     {
                         PrecursorIon precIon = new PrecursorIon(sample, new Queries(dbOptions), foundKey, -1);
-                        precIon.Queries.Add(query);
+                        precIon.AddQuery(query);
                         DicOfSpectrumMasses.Add(foundKey, precIon);
                     }
                     else
-                        DicOfSpectrumMasses[foundKey].Queries.Add(query);
+                        DicOfSpectrumMasses[foundKey].AddQuery(query);
                 }
             }
 

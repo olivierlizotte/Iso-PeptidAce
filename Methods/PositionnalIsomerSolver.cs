@@ -88,6 +88,8 @@ namespace PeptidAce.Iso.Methods
 
             dbOptions.NbPSMToKeep = 16;
 
+            dbOptions.fullFragment = new FullFragments(false);//true by default
+
             //18 Mars 2014 Uptimized scores
             dbOptions.dProduct = 0.0917981081138356;
             dbOptions.dPrecursor = 0.345789190542786;
@@ -424,7 +426,8 @@ namespace PeptidAce.Iso.Methods
                         Dictionary<CharacterizedPrecursor, SolvedResult> finalRatios = SolveFromSpectrum(Isomers, nbProductsToKeep, query.spectrum.Peaks, dbOptions.productMassTolerance,
                                                                 mixedPrecursor.eCurveIntensityPerMS.GetLocalArea(timeInMilliSeconds, timeInMilliSeconds + query.spectrum.InjectionTime),//query.spectrum.PrecursorIntensityPerMilliSecond * query.spectrum.InjectionTime, 
                                                                 query.spectrum.PrecursorIntensity,
-                                                                out underFlow, out percentError, dbOptions.ConSole);
+                                                                out underFlow, out percentError, dbOptions.ConSole,
+                                                                dbOptions.OutputFolder + "Fragments" + System.IO.Path.DirectorySeparatorChar + "Fragments_" + vsCSV.GetFileName_NoExtension(mixedPrecursor.Sample.sSDF) + "_" + mixedPrecursor.MZ + "_" + query.spectrum.ScanNumber + "_" + nbProductsToKeep + ".csv");
 
                         cumulError += underFlow;// percentError;
                         if (percentError < 0.5)
@@ -500,7 +503,7 @@ namespace PeptidAce.Iso.Methods
         public static Dictionary<CharacterizedPrecursor, SolvedResult> SolveFromSpectrum(IEnumerable<CharacterizedPrecursor> ratiosToFit, int nbProductsToKeep, 
                                             IEnumerable<MsMsPeak> capacity, MassTolerance tolerance, 
                                             double PrecursorIntensityInCTrap, double PrecursorIntensity,
-                                            out double underFlow, out double percentError, IConSol ConSole)
+                                            out double underFlow, out double percentError, IConSol ConSole, string fileOut = null)
         {
             bool keepGoing = true;
             Dictionary<double, double> mixedSpectrum = new Dictionary<double, double>();
@@ -533,6 +536,20 @@ namespace PeptidAce.Iso.Methods
                 else
                     keepGoing = false;
             }
+            vsCSVWriter writerFrag = null;
+            if (!string.IsNullOrEmpty(fileOut))
+            {
+                writerFrag = new vsCSVWriter(fileOut);
+                string line = "Fragments:";
+                foreach (double key in mixedSpectrum.Keys)
+                    line += "," + key;
+                writerFrag.AddLine(line);
+
+                line = "Mixed:";
+                foreach (double val in mixedSpectrum.Values)
+                    line += "," + val;
+                writerFrag.AddLine(line);
+            }
 
             //This nbProduct seems relevant, try to use isomer to get ratios for this spectrum
             if (keepGoing)
@@ -558,6 +575,18 @@ namespace PeptidAce.Iso.Methods
                 {
                     resultPerSample.Add(key, result[i]);
                     i++;
+                }
+
+                if (writerFrag != null)
+                {
+                    foreach (CharacterizedPrecursor cPrec in ratiosToFit)
+                    {
+                        string line = cPrec.Peptide.Sequence;
+                        foreach (double key in mixedSpectrum.Keys)
+                            line += "," + cPrec.NormalizedFragments[nbProductsToKeep][key] * resultPerSample[cPrec].NbFitTimes;
+                        writerFrag.AddLine(line);
+                    }
+                    writerFrag.WriteToFile();
                 }
 
                 percentError = (underFlow / sumOfIntensities);

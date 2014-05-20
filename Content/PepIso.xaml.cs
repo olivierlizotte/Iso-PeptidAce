@@ -26,14 +26,14 @@ namespace PeptidAce.ModernUI.Content
         public static double precursorMassTolPPm = 8;
         public static double productMassTolPPm   = 0.05;
         public static int nbMinFragments = 5;
-        public static int nbMaxFragments = 8;
+        public static int nbMaxFragments = 5;
         public string[] peptideFiles;
         public string[] mixedFiles;
         public string   fastaFile;
 
         public PepIso()
         {
-            InitializeComponent();
+            InitializeComponent();            
         }
 
         private void Button_Click_OpenFilePeptide(object sender, RoutedEventArgs e)
