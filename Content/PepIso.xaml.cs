@@ -27,6 +27,7 @@ namespace PeptidAce.ModernUI.Content
         public static double productMassTolPPm   = 0.05;
         public static int nbMinFragments = 5;
         public static int nbMaxFragments = 5;
+        public static bool heavyLabeling = false;
         public string[] peptideFiles;
         public string[] mixedFiles;
         public string   fastaFile;
@@ -165,6 +166,7 @@ namespace PeptidAce.ModernUI.Content
                         newSolver.prodTolDa = productMassTolPPm;
                         newSolver.nbMinFragments = nbMinFragments;
                         newSolver.nbMaxFragments = nbMaxFragments;
+                        newSolver.heavyLabeling = heavyLabeling;
                         newSolver.Solve(peptideFiles, mixedFiles, fastaFile, Utilities.vsCSV.GetFolder(mixedFiles[0]), conSol);
 
                         solver = newSolver;

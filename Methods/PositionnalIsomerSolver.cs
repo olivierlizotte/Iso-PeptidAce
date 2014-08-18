@@ -24,6 +24,9 @@ namespace PeptidAce.Iso.Methods
         //Number of fragment to consider (per isomer)
         public int nbMinFragments = 5;
         public int nbMaxFragments = 5;
+
+        public bool heavyLabeling = false;
+
         //Tolerance windows
         public double precTolPpm = 8;
         public double prodTolDa = 0.05;
@@ -88,15 +91,26 @@ namespace PeptidAce.Iso.Methods
 
             dbOptions.NbPSMToKeep = 16;
 
-            dbOptions.fullFragment = new FullFragments(false);//true by default
+            dbOptions.fullFragment = new FullFragments(true, false);//true by default
 
+            //August 18, 2014 Uptimized Scores
+            dbOptions.dProduct = 0.119686335148144;
+            dbOptions.dPrecursor = -0.0291065124464717;
+            dbOptions.dMatchingProductFraction = 0.286902792186897;
+            dbOptions.dMatchingProduct = 0.00194236745915486;
+            dbOptions.dIntensityFraction = -0.384691853488186;
+            dbOptions.dIntensity = 6.78024513497029E-06;
+            dbOptions.dProtein = 0.0796528968865298;
+            dbOptions.dPeptideScore = 0.00429897685735436;
+            dbOptions.dFragmentScore = 0.234131246215725;
+/*
             //18 Mars 2014 Uptimized scores
             dbOptions.dProduct = 0.0917981081138356;
             dbOptions.dPrecursor = 0.345789190542786;
             dbOptions.dMatchingProductFraction = 0.427418045898628;
-            dbOptions.dMatchingProduct = 0;
+            dbOptions.dMatchingProduct = 0;//0
             dbOptions.dIntensityFraction = 0.429418127252449;
-            dbOptions.dIntensity = 0;
+            dbOptions.dIntensity = 0;//0
             dbOptions.dProtein = 0.692270441303156;
             dbOptions.dPeptideScore = 0.636739763262095;
             dbOptions.dFragmentScore = 0.0229058195943506;
@@ -152,7 +166,39 @@ namespace PeptidAce.Iso.Methods
                 SpikedSamples.Add(new Sample(i + 1, 1, 1, spikedRaws[i], spikedRaws[i], 0, ""));
 
             //Precompute Spiked peptide identifications
-            SpikedResult = Ace.Start(dbOptions, SpikedSamples, false, false);
+            Ace pAce = new Ace(dbOptions, SpikedSamples);
+            pAce.Preload(false, false);
+            Queries qs = Ace.CreateQueries(pAce.AllSpectras, dbOptions);            
+            if(heavyLabeling)
+            {
+                Modification mod = ModificationDictionary.Instance["Heavy Arginine"];
+                int nbQ = qs.Count;
+                //Double each query and each observed peak
+                foreach(Query query in qs.ToArray())
+                {
+                    List<MsMsPeak> peaks = new List<MsMsPeak>();
+                    foreach(MsMsPeak peak in query.spectrum.Peaks)
+                    {
+                        peaks.Add(peak);
+                        if (peak.Charge > 0)
+                            peaks.Add(new MsMsPeak(peak.MZ + Numerics.MZFromMassShift(mod.MonoisotopicMassShift, peak.Charge), peak.Intensity, peak.Charge));
+                        else
+                            peaks.Add(new MsMsPeak(peak.MZ + mod.MonoisotopicMassShift, peak.Intensity, peak.Charge));
+                    }
+                    Track track = new Track(query.precursor.Track.MZ + Numerics.MZFromMassShift(mod.MonoisotopicMassShift, query.precursor.Charge),
+                                        query.precursor.Track.RT, query.precursor.Track.INTENSITY, query.precursor.Track.RT_Min, query.precursor.Track.RT_Max,
+                                        query.precursor.Track.Invented);
+                    Precursor prec = new Precursor(track, query.precursor.Charge, query.sample, query.precursor.MassShift);
+                    ProductSpectrum spectrum = new ProductSpectrum(query.spectrum.ScanNumber, query.spectrum.RetentionTimeInMin, query.spectrum.FragmentationMethod,
+                                                                    prec.Track.MZ, query.spectrum.PrecursorIntensity, query.spectrum.PrecursorCharge,
+                                                                    query.spectrum.PrecursorMass + mod.MonoisotopicMassShift, peaks,
+                                                                    query.spectrum.IsolationWindow, query.spectrum.InjectionTime, query.spectrum.Ms1InjectionTime);
+                    Query newQ = new Query(dbOptions, query.sample, spectrum, prec, query.spectrumIndex + nbQ);
+                    qs.Add(newQ);
+                }
+            }
+            pAce.AllQueries = qs;
+            SpikedResult = pAce.LaunchSearch(pAce.AllQueries);
             SpikedResult.ExportPSMs(1, dbOptions.OutputFolder + "Identifications" + System.IO.Path.DirectorySeparatorChar + "SpikedSamplesPSMs.csv");
 
             MixedSamples = new Samples(dbOptions);
@@ -171,6 +217,12 @@ namespace PeptidAce.Iso.Methods
 
                 //Compute all usable spiked peptides
                 characterizedPeptides = CharacterizedPrecursor.GetSpikedPrecursors(SpikedSamples, SpikedResult, dbOptions, nbMinFragments, nbMaxFragments);
+                
+                //if(heavyLabeling)
+                //{
+                    //Transform and add each psm into a potentially heavylabeled precursor, and alter mapped observed fragments to account for the new masses
+                //    characterizedPeptides = AddHeavyPrecursors(characterizedPeptides, ModificationDictionary.Instance["Heavy Arginine"]);
+                //}
                 ExportSpikedSampleResult(characterizedPeptides, dbOptions);
 
                 vsCSVWriter writerCumul = new vsCSVWriter(OutputFolder + "Results.csv");
@@ -248,7 +300,7 @@ namespace PeptidAce.Iso.Methods
 
                 //Compute site occupancy for identical sequences (real positionnal isomers)
                 vsCSVWriter writerSitesOccupancy = new vsCSVWriter(OutputFolder + "Results_SiteOccupancy.csv");
-                List<Protein> AllProteins = Ace.ReadProteomeFromFasta(fastaFile, false, dbOptions);
+                List<Protein> AllProteins = Ace.ReadProteomeFromFasta(fastaFile, false);
                 foreach (Protein protein in AllProteins)
                 {
                     string newTitleProtein = protein.Description.Replace(',', ' ') + "," + protein.Sequence;

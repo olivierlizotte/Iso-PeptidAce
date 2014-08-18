@@ -74,5 +74,27 @@ namespace PeptidAce.ModernUI.Content
             {
             }
         }
+
+        private void chkBoxHeavyLabel_Checked(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                ModernUI.Content.PepIso.heavyLabeling = true;
+            }
+            catch (Exception)
+            {
+            }
+        }
+
+        private void chkBoxHeavyLabel_Unchecked(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                ModernUI.Content.PepIso.heavyLabeling = false;
+            }
+            catch (Exception)
+            {
+            }
+        }
     }
 }

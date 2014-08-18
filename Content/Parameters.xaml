@@ -19,6 +19,7 @@
                         <RowDefinition />
                         <RowDefinition />
                         <RowDefinition />
+                        <RowDefinition />
                     </Grid.RowDefinitions>
 
                     <TextBlock Text="Precursor Mass Tolerance (in ppm):" VerticalAlignment="Center" Margin="0,0,16,4" />
@@ -32,6 +33,9 @@
 
                     <TextBlock Grid.Row="3" Text="Maximum number of fragment to use:" VerticalAlignment="Center" Margin="0,0,16,4" />
                     <TextBox Name="maxNbFragment" Grid.Row="3" Grid.Column="1" VerticalAlignment="Center" Margin="0,0,0,4" TextChanged="TextBox_TextChanged_3" >5</TextBox>
+                    
+                    <TextBlock Grid.Row="4" Text="Add heavy version of synthetic peptides (Heavy-K):" VerticalAlignment="Center" Margin="0,0,16,4" />
+                    <CheckBox Name="chkBoxHeavyLabel" Grid.Row="4" Grid.Column="1" VerticalAlignment="Center" Margin="0,0,0,4" Unchecked="chkBoxHeavyLabel_Unchecked" Checked="chkBoxHeavyLabel_Checked" />
                 </Grid>
             </StackPanel>
         </ScrollViewer>
