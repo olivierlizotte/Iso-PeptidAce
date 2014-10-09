@@ -24,7 +24,7 @@ namespace PeptidAce.Iso.UnitTests
             dbOptions.dPeptideScore = 0.636739763262095;
             dbOptions.dFragmentScore = 0.0229058195943506;
             
-            dbOptions.fullFragment = new FullFragments(true);
+            dbOptions.fullFragment = new FullFragments(false, false, false);
             string project = @"C:\_IRIC\Data\NB\ProjectTest_AllAce_Spiked_QEPlus_Apr21.csv";
             Samples samples = new Samples(project, 0, dbOptions);
             Uptimizer.Run(samples, dbOptions);

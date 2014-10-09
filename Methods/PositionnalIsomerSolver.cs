@@ -91,7 +91,7 @@ namespace PeptidAce.Iso.Methods
 
             dbOptions.NbPSMToKeep = 16;
 
-            dbOptions.fullFragment = new FullFragments(true, false);//true by default
+            dbOptions.fullFragment = new FullFragments(false, false, false);//true by default
 
             //August 18, 2014 Uptimized Scores
             dbOptions.dProduct = 0.119686335148144;
