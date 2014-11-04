@@ -12,10 +12,10 @@
     <AssemblyName>Iso.PeptidAce</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <IsWebBootstrapper>true</IsWebBootstrapper>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
     <PublishUrl>\\serv02-iric\Groupe\Thibault\Olivier\-= Iso.PeptidAce =-\</PublishUrl>
     <Install>true</Install>
-    <InstallFrom>Web</InstallFrom>
+    <InstallFrom>Unc</InstallFrom>
     <UpdateEnabled>true</UpdateEnabled>
     <UpdateMode>Foreground</UpdateMode>
     <UpdateInterval>7</UpdateInterval>
@@ -23,7 +23,7 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <InstallUrl>http://proteomics.iric.ca/tools/Iso-PeptidAce/</InstallUrl>
+    <InstallUrl>\\serv02-iric\Groupe\Thibault\Olivier\-= Iso.PeptidAce =-\</InstallUrl>
     <SupportUrl>http://proteomics.iric.ca/#/Equipe</SupportUrl>
     <ErrorReportUrl>http://proteomics.iric.ca/#/Equipe</ErrorReportUrl>
     <TargetCulture>en-CA</TargetCulture>
@@ -32,7 +32,7 @@
     <SuiteName>PeptidAce</SuiteName>
     <CreateWebPageOnPublish>true</CreateWebPageOnPublish>
     <WebPage>publish.htm</WebPage>
-    <ApplicationRevision>33</ApplicationRevision>
+    <ApplicationRevision>35</ApplicationRevision>
     <ApplicationVersion>1.2.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>

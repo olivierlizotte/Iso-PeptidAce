@@ -39,7 +39,7 @@ namespace PeptidAce.Iso.Methods
         public string OutputFolder { get { return dbOptions.OutputFolder + "CombinedNoSpike" + System.IO.Path.DirectorySeparatorChar;  } }
         private DBOptions CreateOptions(string fastaFile, string outputFolder, IConSol consol)
         {
-            DBOptions dbOptions = new DBOptions(fastaFile, consol);
+            DBOptions dbOptions = new DBOptions(consol);
             dbOptions.precursorMassTolerance = new MassTolerance(precTolPpm, MassToleranceUnits.ppm);
             dbOptions.productMassTolerance = new MassTolerance(prodTolPpm, MassToleranceUnits.ppm);
             dbOptions.MaximumPeptideMass = 200000;
@@ -48,7 +48,6 @@ namespace PeptidAce.Iso.Methods
             ProteaseDictionary proteases = ProteaseDictionary.Instance;
             //dbOptions.DigestionEnzyme = proteases["no enzyme"];
             dbOptions.DigestionEnzyme = proteases["top-down"];
-            dbOptions.NoEnzymeSearch = false;
             dbOptions.DecoyFusion = false;
             dbOptions.MaximumNumberOfFragmentsPerSpectrum = 400;
             dbOptions.ToleratedMissedCleavages = 200;
@@ -75,7 +74,7 @@ namespace PeptidAce.Iso.Methods
             dbOptions.NbPSMToKeep = 100;
             return dbOptions;
         }
-
+        /*
         public void Solve(string[] mixedRaws, string fastaFile, string folderToOutputTo, IConSol conSol)
         {
             dbOptions = CreateOptions(fastaFile, folderToOutputTo, conSol);
@@ -134,24 +133,10 @@ namespace PeptidAce.Iso.Methods
 
                             ExportMixedSampleResult(ratios, mixedSample, mPrec, keyMz, dbOptions);
                         }
-                    /*
-                    string resultStr = vsCSV.GetFileName(mixedSample.sSDF) + "," + keyMz;
-                    foreach (double precursor in characterizedPeptides.Keys)
-                    {
-                        foreach (Peptide charPrec in characterizedPeptides[precursor].Values)
-                        {
-                            double cumulArea = 0.0;
-                            foreach (Dictionary<Peptide, ElutionCurve> ratios in listOfRatios)
-                                if (ratios.ContainsKey(charPrec))
-                                    cumulArea += ratios[charPrec].Area;
-                            resultStr += "," + cumulArea;
-                        }
-                    }
-                    writerCumul.AddLine(resultStr);//*/
                 }
             }
             writerCumul.WriteToFile();
-        }
+        }//*/
 
         private static void ExportMixedSampleResult(Dictionary<Peptide, MaxFlowElutionCurve> ratios, Sample mixedSample, MixedPrecursor mixedPrecursor, double keyMz, DBOptions dbOptions)
         {

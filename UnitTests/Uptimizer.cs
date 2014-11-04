@@ -27,7 +27,7 @@ namespace PeptidAce.Iso.UnitTests
             dbOptions.fullFragment = new FullFragments(false, false, false);
             string project = @"C:\_IRIC\Data\NB\ProjectTest_AllAce_Spiked_QEPlus_Apr21.csv";
             Samples samples = new Samples(project, 0, dbOptions);
-            Uptimizer.Run(samples, dbOptions);
+            Uptimizer.Run(fastaFile, samples, dbOptions);
 
             dbOptions.Save(dbOptions.OutputFolder + "UptimizedOptions.csv");
         }
@@ -35,13 +35,13 @@ namespace PeptidAce.Iso.UnitTests
 
     public class Uptimizer
     {
-        public static void Run(Samples samples, DBOptions options)
+        public static void Run(string fastaFile, Samples samples, DBOptions options)
         {
             //PeptidAce.Utilities.Methods.UptimizeOptions upper = new Utilities.Methods.UptimizeOptions(options, samples);
             //upper.Run();
             
             Ace ace = new Ace(options, samples);
-            ace.Preload(false, false);            
+            ace.Preload(fastaFile, false, false);            
             ace.PrepareQueries();
 
             bool keepUptimizing = true;

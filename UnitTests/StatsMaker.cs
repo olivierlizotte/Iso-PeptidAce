@@ -38,15 +38,14 @@ namespace PeptidAce.Iso.UnitTests
             newSolver.Solve(synths, mixed, fastaFile, Utilities.vsCSV.GetFolder(mixed[0]), options.ConSole);
 
             //Precompute Spiked peptide identifications
-            Result SpikedResult = Ace.Start(options, samplesSynth, false, false);
+            Result SpikedResult = Ace.Start(options, fastaFile, samplesSynth, false, false);
 
-            Result mixedResult = Ace.Start(options, samplesMixed, false, false);
+            Result mixedResult = Ace.Start(options, fastaFile, samplesMixed, false, false);
 
             //Compute all usable spiked peptides
-            Dictionary<double, Dictionary<Sample, CharacterizedPrecursor>> characterizedPeptides = CharacterizedPrecursor.GetSpikedPrecursors(samplesSynth, SpikedResult, options, newSolver.nbMinFragments, newSolver.nbMaxFragments);
+            Dictionary<double, Dictionary<Sample, CharacterizedPrecursor>> characterizedPeptides = CharacterizedPrecursor.GetSpikedPrecursors(samplesSynth, SpikedResult, mixedResult, samplesMixed, options, newSolver.nbMinFragments, newSolver.nbMaxFragments);
 
             Dictionary<Sample, List<MixedPrecursor>> mixedPrecursors = new Dictionary<Sample, List<MixedPrecursor>>();
-
             foreach (Sample mixedSample in samplesMixed)
                 mixedPrecursors.Add(mixedSample, MixedPrecursor.GetMixedPrecursors(mixedSample, mixedResult, options, characterizedPeptides));
 
