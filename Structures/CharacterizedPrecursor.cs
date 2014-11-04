@@ -355,7 +355,7 @@ namespace PeptidAce.Iso.Structures
         /// <param name="nbMinFragments"></param>
         /// <param name="nbMaxFragments"></param>
         /// <returns></returns>
-        public static Dictionary<double, Dictionary<Sample, CharacterizedPrecursor>> GetSpikedPrecursors(Samples spikedSamples, Result spikedResult, DBOptions dbOptions, int nbMinFragments, int nbMaxFragments, Modification heavy)//, long precision)
+       /* public static Dictionary<double, Dictionary<Sample, CharacterizedPrecursor>> GetSpikedPrecursors(Samples spikedSamples, Result spikedResult, DBOptions dbOptions, int nbMinFragments, int nbMaxFragments, Modification heavy)//, long precision)
         {
             Dictionary<double, Dictionary<Query, int>> mzKeys = new Dictionary<double, Dictionary<Query, int>>();
             foreach (Query query in spikedResult.queries)
@@ -410,7 +410,7 @@ namespace PeptidAce.Iso.Structures
                                 mzKeys[mz].Add(newQ, 1);
                         }
                     }
-                }//*/
+                }
             }
 
             Dictionary<double, Dictionary<Sample, CharacterizedPrecursor>> spikes = new Dictionary<double, Dictionary<Sample, CharacterizedPrecursor>>();
@@ -468,9 +468,9 @@ namespace PeptidAce.Iso.Structures
                     CharacterizedPrecursor.Update(spikes[mzKey].Values, nbMinFragments, nbMaxFragments, dbOptions);//, precision);
                 else
                     spikes.Remove(mzKey);
-            }//*/
+            }
             return spikes;
-        }
+        }//*/
 
         /// <summary>
         /// Creates a dictionnary of characterized precursors based on ProPheus assignement results
@@ -481,7 +481,7 @@ namespace PeptidAce.Iso.Structures
         /// <param name="nbMinFragments"></param>
         /// <param name="nbMaxFragments"></param>
         /// <returns></returns>
-        public static Dictionary<double, Dictionary<Sample, CharacterizedPrecursor>> GetSpikedPrecursors(Samples spikedSamples, Result spikedResult, DBOptions dbOptions, int nbMinFragments, int nbMaxFragments)//, long precision)
+        public static Dictionary<double, Dictionary<Sample, CharacterizedPrecursor>> GetSpikedPrecursors(Samples spikedSamples, Result spikedResult, Result mixedResult, Samples mixedSamples, DBOptions dbOptions, int nbMinFragments, int nbMaxFragments)//, long precision)
         {
             Dictionary<double, Dictionary<Query, int>> mzKeys = new Dictionary<double, Dictionary<Query, int>>();
             foreach (Query query in spikedResult.queries)
@@ -552,6 +552,89 @@ namespace PeptidAce.Iso.Structures
                     }
                 }//End of foreach mzKey
             }//End of foreach spiked sample
+
+            //Add mixed spectra without synthetic isomers (assume no coelution)
+            Dictionary<double, Dictionary<Query, int>> mzKeyMixed = new Dictionary<double, Dictionary<Query, int>>();
+            foreach (Query query in mixedResult.queries)
+            {
+                foreach (PeptideSpectrumMatch psm in query.psms)
+                {
+                    double mz = Utilities.Numerics.MZFromMass(psm.Peptide.MonoisotopicMass, query.spectrum.PrecursorCharge);
+                    if (!mzKeys.ContainsKey(mz))
+                    {
+                        bool foundInSpikes = false;
+                        foreach (double key in mzKeys.Keys)
+                            if (Math.Abs(Utilities.Numerics.CalculateMassError(mz, key, dbOptions.precursorMassTolerance.Units)) <= dbOptions.precursorMassTolerance.Value)
+                            {
+                                mz = key;
+                                foundInSpikes = true;
+                            }
+                        if (!foundInSpikes)
+                        {
+                            if (!mzKeyMixed.ContainsKey(mz))
+                            {
+                                bool found = false;
+                                foreach (double key in mzKeyMixed.Keys)
+                                    if (Math.Abs(Utilities.Numerics.CalculateMassError(mz, key, dbOptions.precursorMassTolerance.Units)) <= dbOptions.precursorMassTolerance.Value)
+                                    {
+                                        mz = key;
+                                        found = true;
+                                    }
+                                if (!found)
+                                    mzKeyMixed.Add(mz, new Dictionary<Query, int>());
+                            }
+                            if (!mzKeyMixed[mz].ContainsKey(query))
+                                mzKeyMixed[mz].Add(query, 1);
+                        }
+                    }
+                }
+            }
+            foreach (Sample mixedSample in mixedSamples)
+            {
+                Dictionary<double, PrecursorIon> DicOfSpectrumMasses = PrecursorIon.GetPrecursors(mixedResult, mixedSample, dbOptions, mzKeyMixed.Keys);
+                foreach (double mzKey in DicOfSpectrumMasses.Keys)
+                {
+                    if (mzKeyMixed.ContainsKey(mzKey))
+                    {
+                        //Pick the best PSM for each sample/precursor pair
+                        Dictionary<Peptide, double> DicOfProbabilityScores = new Dictionary<Peptide, double>();
+
+                        foreach (Query query in mzKeyMixed[mzKey].Keys)
+                            if (query.sample == mixedSample)
+                            {
+                                foreach (PeptideSpectrumMatch psm in query.psms)
+                                    if (!DicOfProbabilityScores.ContainsKey(psm.Peptide))
+                                        DicOfProbabilityScores.Add(psm.Peptide, psm.ProbabilityScore());
+                                    else
+                                        DicOfProbabilityScores[psm.Peptide] += psm.ProbabilityScore();
+                            }
+
+                        Peptide bestPeptide = null;
+                        double bestScore = double.MinValue;
+                        foreach (Peptide keyPep in DicOfProbabilityScores.Keys)
+                            if (DicOfProbabilityScores[keyPep] > bestScore)
+                            {
+                                bestScore = DicOfProbabilityScores[keyPep];
+                                bestPeptide = keyPep;
+                            }
+                        if (bestPeptide != null)
+                        {
+                            CharacterizedPrecursor cPrec = new CharacterizedPrecursor(mixedSample, dbOptions, bestPeptide, mzKeyMixed[mzKey].Keys, mzKey);
+                            //Don't keep precursors if they are not well characterized (unfragmented or missasigned)
+                            if (cPrec.AllFragments.Count >= cPrec.Peptide.Length - 2)
+                            {
+                                if (!spikes.ContainsKey(mzKey))
+                                    spikes.Add(mzKey, new Dictionary<Sample, CharacterizedPrecursor>());
+                                if (!spikes[mzKey].ContainsKey(mixedSample))
+                                    spikes[mzKey].Add(mixedSample, cPrec);
+                                else
+                                    Console.WriteLine("Twice??");
+                            }
+                        }
+                    }
+                }//End of foreach mzKeyMixed
+            }//End of foreach mixed sample
+
 
             //Normalize intensities based on average area of each precursor
             List<double> tmpKeys = new List<double>(spikes.Keys);

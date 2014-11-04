@@ -56,7 +56,7 @@ namespace PeptidAce.Iso.Methods
         /// <returns></returns>
         public static DBOptions CreateOptions(string fastaFile, string outputFolder, double precTolPpm, double prodTolDa, IConSol consol)
         {
-            DBOptions dbOptions = new DBOptions(fastaFile, consol);
+            DBOptions dbOptions = new DBOptions(consol);
             dbOptions.precursorMassTolerance = new MassTolerance(precTolPpm, MassToleranceUnits.ppm);
             dbOptions.productMassTolerance = new MassTolerance(prodTolDa, MassToleranceUnits.Da); 
             dbOptions.MaximumPeptideMass = 200000;
@@ -65,7 +65,6 @@ namespace PeptidAce.Iso.Methods
             ProteaseDictionary proteases = ProteaseDictionary.Instance;
             dbOptions.DigestionEnzyme = proteases["no enzyme"];
             //dbOptions.DigestionEnzyme = proteases["top-down"];
-            dbOptions.NoEnzymeSearch = false;
             dbOptions.DecoyFusion = false;
             dbOptions.MaximumNumberOfFragmentsPerSpectrum = 400;
             dbOptions.ToleratedMissedCleavages = 200;
@@ -167,7 +166,7 @@ namespace PeptidAce.Iso.Methods
 
             //Precompute Spiked peptide identifications
             Ace pAce = new Ace(dbOptions, SpikedSamples);
-            pAce.Preload(false, false);
+            pAce.Preload(fastaFile, false, false);
             Queries qs = Ace.CreateQueries(pAce.AllSpectras, dbOptions);            
             if(heavyLabeling)
             {
@@ -206,18 +205,22 @@ namespace PeptidAce.Iso.Methods
                 MixedSamples.Add(new Sample(i + 1, 1, 1, mixedRaws[i], mixedRaws[i], 0, ""));
 
             //Precompute Mixed peptide identifications
-            mixedResult = Ace.Start(dbOptions, MixedSamples, false, false);
+            mixedResult = Ace.Start(dbOptions, fastaFile, MixedSamples, false, false);
             if (mixedResult == null)
                 conSol.WriteLine("OOPS! No queries could be extracted from the list of mixed spectrum files...");
             else
             {
                 mixedResult.ExportPSMs(1, dbOptions.OutputFolder + "Identifications" + System.IO.Path.DirectorySeparatorChar + "MixedSamplesPSMs.csv");
-
+                
                 conSol.WriteLine("Computing gradient descents...");
 
                 //Compute all usable spiked peptides
-                characterizedPeptides = CharacterizedPrecursor.GetSpikedPrecursors(SpikedSamples, SpikedResult, dbOptions, nbMinFragments, nbMaxFragments);
-                
+                characterizedPeptides = CharacterizedPrecursor.GetSpikedPrecursors(SpikedSamples, SpikedResult, mixedResult, MixedSamples, dbOptions, nbMinFragments, nbMaxFragments);
+
+                mixedPrecursors = new Dictionary<Sample, List<MixedPrecursor>>();
+                foreach (Sample mixedSample in MixedSamples)
+                    mixedPrecursors.Add(mixedSample, MixedPrecursor.GetMixedPrecursors(mixedSample, mixedResult, dbOptions, characterizedPeptides));
+
                 //if(heavyLabeling)
                 //{
                     //Transform and add each psm into a potentially heavylabeled precursor, and alter mapped observed fragments to account for the new masses
@@ -245,10 +248,6 @@ namespace PeptidAce.Iso.Methods
                 writerCumul.AddLine(curveStr);
                 writerCumul.AddLine(spikedIntensityStr);
 
-                mixedPrecursors = new Dictionary<Sample, List<MixedPrecursor>>();
-
-                foreach (Sample mixedSample in MixedSamples)
-                    mixedPrecursors.Add(mixedSample, MixedPrecursor.GetMixedPrecursors(mixedSample, mixedResult, dbOptions, characterizedPeptides));
 
                 //Get the list of precursors to characterize
                 foreach (Sample mixedSample in MixedSamples)
@@ -635,7 +634,8 @@ namespace PeptidAce.Iso.Methods
                     {
                         string line = cPrec.Peptide.Sequence;
                         foreach (double key in mixedSpectrum.Keys)
-                            line += "," + cPrec.NormalizedFragments[nbProductsToKeep][key] * resultPerSample[cPrec].NbFitTimes;
+                            if(cPrec.NormalizedFragments[nbProductsToKeep].ContainsKey(key))
+                                line += "," + cPrec.NormalizedFragments[nbProductsToKeep][key] * resultPerSample[cPrec].NbFitTimes;
                         writerFrag.AddLine(line);
                     }
                     writerFrag.WriteToFile();
